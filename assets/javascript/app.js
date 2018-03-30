@@ -53,13 +53,28 @@ database.ref().on("child_added", function(childSnapshot, prevChildKey) {
   var trainName = childSnapshot.val().name;
   var trainDestination = childSnapshot.val().destination;
   var trainStart = childSnapshot.val().start;
-  var trainFrequency  = childSnapshot.val().frequency;
-   // Prettify the train start
-  var trainStartTime = moment(trainStart,"HH:mm");
-  var arrivalTime = trainStartTime.add(parseInt(trainFrequency),'m');
+  var trainFrequency  = parseInt(childSnapshot.val().frequency);
 
+  console.log(trainName);
+  console.log(trainDestination);
+  console.log(trainStart);
+  console.log(trainFrequency);
+   // Prettify the train start
+  var startDateTime = moment();
+  var trainStartTime = moment(trainStart,"HH:mm");
+  console.log(trainStartTime);
+  startDateTime.minutes(trainStartTime.minutes()).hours(trainStartTime.hours());
+  console.log(startDateTime);
+  var currentTime = moment();
+  var arrivalTime;
+  for(arrivalTime = startDateTime; arrivalTime.isBefore(currentTime); arrivalTime.add(trainFrequency,'m')){
+    //console.log(arrivalTime.format("MM/DD/YYYY HH:mm"));
+  }
+  var milisecondsAway = arrivalTime.diff(currentTime);
+  var minutesAway = moment.duration(milisecondsAway);
+  var timeAway = minutesAway.days() + " Days " + minutesAway.hours() + " Hours " + minutesAway.minutes() + " Minutes";
    // Add each train's data into the table
   $("#train-table > tbody").append("<tr><td>" + trainName + "</td><td>" + trainDestination  + "</td><td>" +
- trainStart + "</td><td>" + trainFrequency  + "</td> <td> "+ arrivalTime.format('HH:mm')+"</td></tr>");
+ trainFrequency + "</td><td>" +  arrivalTime.format('ddd, MMM DD YYYY HH:mm') + "</td> <td> "+ timeAway+"</td></tr>");
 });
 });
